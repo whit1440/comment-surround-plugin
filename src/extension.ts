@@ -15,11 +15,22 @@ export function activate(context: vscode.ExtensionContext) {
 			const document = editor.document;
 			const selection = editor.selection;
 
-			const selectedText = document.getText(selection);
-			const finalLine = wrapper(selectedText, commentType, paddingSize);
+			// Get the full lines of the selection
+			const startLine = selection.start.line;
+			const endLine = selection.end.line;
+			const fullRange = new vscode.Range(startLine, 0, endLine, document.lineAt(endLine).text.length);
+			const selectedText = document.getText(fullRange);
+
+			// Determine indentation of the first line
+			const firstLineText = document.lineAt(startLine).text;
+			const indentationMatch = firstLineText.match(/^[\t ]*/);
+			const indentation = indentationMatch ? indentationMatch[0] : '';
+
+			// Wrap the text while preserving the indentation
+			const finalLine = wrapper(selectedText, commentType, paddingSize, indentation);
 
 			await editor.edit(editBuilder => {
-				editBuilder.replace(selection, finalLine);
+				editBuilder.replace(fullRange, finalLine);
 			});
 		}
 	});

@@ -36,7 +36,7 @@ suite('Comment Surround Plugin Test Suite', () => {
 		if (activeEditor) {
 			activeEditor.selection = selection;
 
-			await commands.executeCommand('comment-surround-plugin.surroundWithSlashes');
+			await commands.executeCommand('comment-surround-plugin.surround');
 
 			const updatedText = activeEditor.document.getText();
 			strictEqual(
@@ -61,7 +61,7 @@ suite('Comment Surround Plugin Test Suite', () => {
 		if (activeEditor) {
 			activeEditor.selection = selection;
 
-			await commands.executeCommand('comment-surround-plugin.surroundWithSlashes');
+			await commands.executeCommand('comment-surround-plugin.surround');
 
 			const updatedText = activeEditor.document.getText();
 			strictEqual(
@@ -88,7 +88,7 @@ suite('Comment Surround Plugin Test Suite', () => {
 		if (activeEditor) {
 			activeEditor.selection = selection;
 
-			await commands.executeCommand('comment-surround-plugin.surroundWithSlashes');
+			await commands.executeCommand('comment-surround-plugin.surround');
 
 			const updatedText = activeEditor.document.getText();
 			strictEqual(
@@ -96,6 +96,58 @@ suite('Comment Surround Plugin Test Suite', () => {
 				'///////////////////////////////\n' +
 				'/// Private Methods Below 3 ///\n' +
 				'///////////////////////////////'
+			);
+		}
+	});
+
+	test('Indentation and multi line using spaces', async () => {
+		const config = workspace.getConfiguration('comment-surround-plugin');
+		await config.update('commentType', '/', ConfigurationTarget.Global);
+		await config.update('paddingSize', 3, ConfigurationTarget.Global);
+
+		await setEditorText("    Private Methods\n    Below 3");
+
+		const selection = new Selection(0, 4, 1, 11);
+		const activeEditor = window.activeTextEditor;
+
+		if (activeEditor) {
+			activeEditor.selection = selection;
+
+			await commands.executeCommand('comment-surround-plugin.surround');
+
+			const updatedText = activeEditor.document.getText();
+			strictEqual(
+				updatedText,
+				'    ///////////////////////\n' +
+				'    /// Private Methods ///\n' +
+				'    /// Below 3         ///\n' +
+				'    ///////////////////////'
+			);
+		}
+	});
+
+	test('Indentation and multi line using tabs', async () => {
+		const config = workspace.getConfiguration('comment-surround-plugin');
+		await config.update('commentType', '/', ConfigurationTarget.Global);
+		await config.update('paddingSize', 3, ConfigurationTarget.Global);
+
+		await setEditorText("\t\tPrivate Methods\n\t\tBelow 3");
+
+		const selection = new Selection(0, 4, 1, 11);
+		const activeEditor = window.activeTextEditor;
+
+		if (activeEditor) {
+			activeEditor.selection = selection;
+
+			await commands.executeCommand('comment-surround-plugin.surround');
+
+			const updatedText = activeEditor.document.getText();
+			strictEqual(
+				updatedText,
+				'\t\t///////////////////////\n' +
+				'\t\t/// Private Methods ///\n' +
+				'\t\t/// Below 3         ///\n' +
+				'\t\t///////////////////////'
 			);
 		}
 	});
